@@ -7,9 +7,10 @@ using UnityEngine;
 
 public class AnimationCombiner : EditorWindow
 {
+    const string GENERATED_ASSETS_FOLDER = "!Cam/Scripts/Generated Assets";
+
     List<AnimationClip> clips;
     Vector2 scrollPos;
-    string generatedAssetsDir = "!Cam/Scripts/Generated Assets";
 
     [MenuItem("Cam/Animation Combiner")]
     public static void ShowWindow() => EditorWindow.GetWindow<AnimationCombiner>().Show();
@@ -74,7 +75,7 @@ public class AnimationCombiner : EditorWindow
 
     void GenerateDirectory()
     {
-        string dirAbsPath = $"{Application.dataPath}/{generatedAssetsDir}";
+        string dirAbsPath = $"{Application.dataPath}/{GENERATED_ASSETS_FOLDER}";
         if (!System.IO.Directory.Exists(dirAbsPath))
             System.IO.Directory.CreateDirectory(dirAbsPath);
     }
@@ -105,7 +106,7 @@ public class AnimationCombiner : EditorWindow
             }
         }
 
-        string path = AssetDatabase.GenerateUniqueAssetPath($"Assets/{generatedAssetsDir}/CombinedAnimation.anim");
+        string path = AssetDatabase.GenerateUniqueAssetPath($"Assets/{GENERATED_ASSETS_FOLDER}/CombinedAnimation.anim");
         AssetDatabase.CreateAsset(newClip, path);
         EditorGUIUtility.PingObject(newClip);
     }
