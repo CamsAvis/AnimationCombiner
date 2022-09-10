@@ -8,6 +8,7 @@ using UnityEngine;
 public class AnimationCombiner : EditorWindow
 {
     List<AnimationClip> clips;
+    Vector2 scrollPos;
     string generatedAssetsDir = "!Cam/Scripts/Generated Assets";
 
     [MenuItem("Cam/Animation Combiner")]
@@ -17,27 +18,58 @@ public class AnimationCombiner : EditorWindow
 
     public void OnGUI()
     {
+        float screenWidth = EditorGUIUtility.currentViewWidth - 12.5f;
+
+        GUILayout.Label("Clips", EditorStyles.whiteLargeLabel);
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("Add Selected"))
+            if (GUILayout.Button("Add Selected", GUILayout.Width(screenWidth / 2f)))
                 AddSelectedClips();
-            if (GUILayout.Button("Clear"))
+            if (GUILayout.Button("Clear", GUILayout.Width(screenWidth / 2f)))
                 clips = new List<AnimationClip>();
         }
-
-        if (GUILayout.Button("Merge"))
-            MergeClips();
-
-        if (GUILayout.Button("Merge Selected"))
-            MergeSelectedClips();
-
-        GUILayout.Label("Clips");
-        GUI.enabled = false;
-        EditorGUIUtility.labelWidth = 25;
-        for(int i = 0; i < clips.Count; i++) {
-            EditorGUILayout.ObjectField((i+1).ToString(), clips[i], typeof(AnimationClip), true);
+        scrollPos = GUILayout.BeginScrollView(scrollPos, "box");
+        {
+            for (int i = 0; i < clips.Count; i++)
+            {
+                bool removed = DrawClip(i);
+                if (removed) return;
+            }
         }
-        GUI.enabled = true;
+        GUILayout.EndScrollView();
+
+        GUILayout.Space(10);
+
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Merge All In List", GUILayout.Width(screenWidth / 2f)))
+                MergeClips();
+
+            if (GUILayout.Button("Merge Selected", GUILayout.Width(screenWidth / 2f)))
+                MergeSelectedClips();
+        }
+
+        GUILayout.Space(10);
+    }
+
+    bool DrawClip(int index)
+    {
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            EditorGUIUtility.labelWidth = 25;
+            GUILayout.Label((index + 1).ToString(), GUILayout.Width(25));
+            GUI.enabled = false;
+            EditorGUILayout.ObjectField(clips[index], typeof(AnimationClip), true);
+            GUI.enabled = true;
+
+            if (GUILayout.Button("Remove", GUILayout.Width(75)))
+            {
+                clips.Remove(clips[index]);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void GenerateDirectory()
